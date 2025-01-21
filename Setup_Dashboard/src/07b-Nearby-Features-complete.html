@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Web Mapping Tutorial - Buffer</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <style>
+    #map {
+      height: 80vh;
+      margin-bottom: 10px;
+    }
+    #controls {
+      margin: 10px;
+    }
+    #controls input {
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Web Mapping Tutorial - Buffer</h1>
+  <div id="controls">
+    <button id="add-marker-btn">Add Marker</button>
+    <label for="coordinates">Coordinates:</label>
+    <input type="text" id="coordinates" placeholder="Lat, Lng" readonly />
+    <label for="distance">Distance (meters):</label>
+    <input type="number" id="distance" placeholder="1000" />
+    <button id="submit-btn">Submit</button>
+  </div>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script>
+    var map = L.map('map').setView([25.505, 92.05], 8);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    var addMarkerMode = false;
+    var marker;
+    var bufferCircle;
+
+    // Button to activate add marker mode
+    document.getElementById('add-marker-btn').addEventListener('click', function () {
+      addMarkerMode = true;
+      alert('Click on the map to add a marker.');
+    });
+
+    // Map click event to add marker
+    map.on('click', function (e) {
+      if (addMarkerMode) {
+        var lat = e.latlng.lat.toFixed(6);
+        var lng = e.latlng.lng.toFixed(6);
+
+        // Add or update marker
+        if (marker) {
+          map.removeLayer(marker);
+        }
+        marker = L.marker([lat, lng]).addTo(map);
+
+        // Update coordinates in the input box
+        document.getElementById('coordinates').value = `${lat}, ${lng}`;
+        addMarkerMode = false; // Disable add marker mode
+
+        // Remove existing buffer circle if any
+        if (bufferCircle) {
+          map.removeLayer(bufferCircle);
+        }
+      }
+    });
+
+    // Button to submit the query
+    document.getElementById('submit-btn').addEventListener('click', function () {
+      var coordinates = document.getElementById('coordinates').value;
+      var distance = document.getElementById('distance').value;
+
+      if (!coordinates || !distance) {
+        alert('Please add a marker and specify a distance.');
+        return;
+      }
+
+      var [lat, lng] = coordinates.split(',').map(Number);
+
+      // Draw a hollow circle (buffer) around the marker
+      if (bufferCircle) {
+        map.removeLayer(bufferCircle);
+      }
+      bufferCircle = L.circle([lat, lng], {
+        color: 'red',
+        fillOpacity: 0,
+        radius: distance
+      }).addTo(map);
+
+      // Define the Overpass API query
+      var query = `
+        [out:json];
+        node(around:${distance}, ${lat}, ${lng});
+        out body;
+      `;
+
+      // Fetch data from Overpass API
+      fetch('https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(query))
+        .then(response => response.json())
+        .then(data => {
+          // Process and display nearby features
+          data.elements.forEach(element => {
+            if (element.lat && element.lon) {
+              // Add small circle markers for nearby features
+              L.circle([element.lat, element.lon], {
+                color: 'blue',
+                fillColor: '#30c',
+                fillOpacity: 0.5,
+                radius: 5
+              })
+                .bindPopup(`Type: ${element.tags?.amenity || 'Unknown'}<br>Node ID: ${element.id}`)
+                .addTo(map);
+            }
+          });
+        })
+        .catch(error => {
+          console.error('Error fetching data from Overpass API:', error);
+        });
+    });
+  </script>
+</body>
+</html>

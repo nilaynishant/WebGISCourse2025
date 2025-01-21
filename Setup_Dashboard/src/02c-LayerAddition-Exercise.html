@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Web Mapping Tutorial</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <style>
+    #map {
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <h1>Web Mapping Tutorial</h1>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script>
+    var map = L.map('map').setView([25.505, 92.05], 8);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Adding a Marker
+    var marker = L.marker([25.505, 92.05]).addTo(map);
+    marker.bindPopup("<b>Hello!</b><br>This is a custom marker.").openPopup();
+
+    // Load GeoJSON from an external file
+    fetch('http://127.0.0.1:5500/Data/sample.geojson') // Replace with the URL to your GeoJSON file
+      .then(response => response.json())
+      .then(data => {
+        // Add GeoJSON layer to the map
+        L.geoJSON(data, {
+          onEachFeature: function (feature, layer) {
+            if (feature.properties && feature.properties.name) {
+              layer.bindPopup("<b>" + feature.properties.name + "</b>");
+            }
+          },
+          style: function(feature) {
+            return { color: 'blue', weight: 2 };
+          }
+        }).addTo(map);
+      })
+      .catch(error => console.error('Error loading GeoJSON:', error));
+
+    // Adding a WMS Layer
+    // var wmsLayerUrl = 'URL_TO_YOUR_WMS_SERVICE';
+    // var wmsLayer = L.tileLayer.wms(wmsLayerUrl, {
+    //   layers: 'LAYER_NAME', // Change this to the specific layer you want to display from your WMS service
+    //   format: 'image/png',
+    //   transparent: true,
+    // }).addTo(map);
+
+    var wmsLayerUrl = 'https://www.nesdr.gov.in/igistile/NER_Land_Use_50K_QC_passWS/wms';
+    var wmsLayer = L.tileLayer.wms(wmsLayerUrl, {
+      layers: 'NER_LULC_50K_1st_CYCLE', // Change this to the specific layer you want to display from your WMS service
+      format: 'image/png',
+      transparent: true,
+      attribution: 'WMS data &copy; <a href="URL_TO_YOUR_DATA_SOURCE">Data Source</a>'
+    }).addTo(map);
+  </script>
+</body>
+</html>
+
+<!-- Add another wms layer from your local geoserver and one layer from NeSDR-->
