@@ -1,0 +1,923 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>A hands-on introduction to Webmapping using leaflet, Geoserver and PhP</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.highlight-default_background {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.highlight-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.block-color-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-uiBlue { background-color: rgba(35, 131, 226, .07); }
+.select-value-color-pink { background-color: rgba(245, 224, 233, 1); }
+.select-value-color-purple { background-color: rgba(232, 222, 238, 1); }
+.select-value-color-green { background-color: rgba(219, 237, 219, 1); }
+.select-value-color-gray { background-color: rgba(227, 226, 224, 1); }
+.select-value-color-transparentGray { background-color: rgba(227, 226, 224, 0); }
+.select-value-color-translucentGray { background-color: rgba(0, 0, 0, 0.06); }
+.select-value-color-orange { background-color: rgba(250, 222, 201, 1); }
+.select-value-color-brown { background-color: rgba(238, 224, 218, 1); }
+.select-value-color-red { background-color: rgba(255, 226, 221, 1); }
+.select-value-color-yellow { background-color: rgba(253, 236, 200, 1); }
+.select-value-color-blue { background-color: rgba(211, 229, 239, 1); }
+.select-value-color-pageGlass { background-color: undefined; }
+.select-value-color-washGlass { background-color: undefined; }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="182b6dc6-a7a1-803a-ba8a-f958c903d5e8" class="page sans"><header><img class="page-cover-image" src="https://www.notion.so/images/page-cover/nasa_the_blue_marble.jpg" style="object-position:center 50%"/><h1 class="page-title">A hands-on introduction to Webmapping using leaflet, Geoserver and PhP</h1><p class="page-description"></p></header><div class="page-body"><p id="182b6dc6-a7a1-8014-8b39-c2009b31d7d9" class=""><strong>Nilay Nishant</strong></p><p id="182b6dc6-a7a1-80d6-8ad1-db77d8003d84" class="">
+</p><nav id="182b6dc6-a7a1-8051-b6bb-e3d6d154cbf0" class="block-color-gray_background table_of_contents"><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#182b6dc6-a7a1-8012-add7-de5078d1985a"><strong>Introduction</strong></a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#182b6dc6-a7a1-80c8-b99a-c8db865baaa0"><strong>Get the Code and Data Package</strong></a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#182b6dc6-a7a1-80b1-8dcb-e21e2bb0982f"><strong>Setting Up the Environment</strong></a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#182b6dc6-a7a1-80e7-a1f5-edae079526e3">Module 1: Geoportal Basics</a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#182b6dc6-a7a1-8091-9ab1-c4ef0dac68f8"><strong>1. Hello World: Creating a Basic Web Map with Leaflet</strong></a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#182b6dc6-a7a1-809c-9e44-faf3bc91e819"><strong>2. Adding Layers to a Web Map</strong></a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#182b6dc6-a7a1-8037-8840-e28076f74ee9">Module 2: Leaflet Control and Plugins</a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#182b6dc6-a7a1-8089-b6c8-c2646d006a7c"><strong>3. Adding Layer Control in Leaflet</strong></a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#182b6dc6-a7a1-80b2-b819-e87d8eaef2c9"><strong>4. Using Plugins in Leaflet - Adding Measurement Tools</strong></a></div><div class="table_of_contents-item table_of_contents-indent-0"><a class="table_of_contents-link" href="#182b6dc6-a7a1-8043-9d3b-d3d6e023271e">Module 3: API Interaction</a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#182b6dc6-a7a1-80de-b47c-eaac1992d061"><strong>5.Implementing a Search Functionality with OpenStreetMap API</strong></a></div><div class="table_of_contents-item table_of_contents-indent-1"><a class="table_of_contents-link" href="#182b6dc6-a7a1-801e-9d55-c7468e2a9c1c"><strong>6. Map with Buffer Search</strong></a></div></nav><h3 id="182b6dc6-a7a1-8012-add7-de5078d1985a" class=""><strong>Introduction</strong></h3><p id="182b6dc6-a7a1-8079-a4b2-de937b2eb2da" class="">This class introduces web mapping using <strong>Leaflet.js</strong> from the ground up. It is ideal for GIS practitioners who have little or no programming or web development experience. The course will cover foundational programming concepts for web mapping, the use of <strong>Leaflet.js</strong> libraries for spatial visualization, integrating geospatial APIs, and building interactive and visually engaging web maps.</p><h3 id="182b6dc6-a7a1-80c8-b99a-c8db865baaa0" class=""><strong>Get the Code and Data Package</strong></h3><p id="182b6dc6-a7a1-8064-b075-ccaa0154091f" class="">The code examples in this class use several datasets for creating web maps and adding interactivity. All required datasets, JavaScript files, and HTML templates are provided in the <strong>webmapping_leaflet.zip</strong> file.</p><p id="182b6dc6-a7a1-80e2-9de8-c58115bc6aec" class="">To get started:</p><p id="182b6dc6-a7a1-8039-a79d-e4000acbf2a5" class="">1.	Download the <strong>webmapping_leaflet.zip</strong> file.</p><p id="182b6dc6-a7a1-8041-8ae9-f0261cf58052" class="">2.	Unzip the file to a directory—preferably to &lt;home folder&gt;/Downloads/webmapping_leaflet/.</p><p id="182b6dc6-a7a1-8005-b1a9-f73a813ec711" class="">The package includes:</p><p id="182b6dc6-a7a1-805f-b927-eb1908357982" class="">•	Sample datasets for web mapping (GeoJSON, CSV, etc.).</p><p id="182b6dc6-a7a1-80a1-92b8-f3e6aa672c7c" class="">•	Preconfigured HTML templates for creating web maps with Leaflet.</p><p id="182b6dc6-a7a1-8070-9dd0-d09cc2c025ba" class="">•	JavaScript files demonstrating various functionalities like adding markers, popups, layers, and controls.</p><p id="182b6dc6-a7a1-80e2-93fd-d903bfb40db0" class="">[<strong>Download webmapping_leaflet.zip</strong>]</p><h3 id="182b6dc6-a7a1-80b1-8dcb-e21e2bb0982f" class=""><strong>Setting Up the Environment</strong></h3><p id="182b6dc6-a7a1-8054-b67c-c525c509fc5a" class="">To ensure a smooth workflow for WebGIS development, follow these steps to set up your development environment using <strong>Docker</strong> and <strong>Visual Studio Code</strong>:</p><p id="182b6dc6-a7a1-8048-a9e2-d3efbd8207bf" class=""><strong>Step 1: Install Docker Desktop</strong></p><p id="182b6dc6-a7a1-802b-9a85-c5133d3e18f5" class="">1.	<strong>Download and Install Docker Desktop</strong>:</p><ul id="182b6dc6-a7a1-809c-b141-fe739d4febae" class="bulleted-list"><li style="list-style-type:disc">Visit the <a href="https://www.docker.com/products/docker-desktop/">official Docker website</a> and download the installer for your operating system.</li></ul><ul id="182b6dc6-a7a1-807a-9752-f23d016c9741" class="bulleted-list"><li style="list-style-type:disc">Follow the on-screen instructions to install Docker Desktop.</li></ul><ul id="182b6dc6-a7a1-80d5-91d7-ca4a0d7a13d2" class="bulleted-list"><li style="list-style-type:disc">Open a terminal or command prompt.</li></ul><ul id="182b6dc6-a7a1-8007-9509-de1d736ceca4" class="bulleted-list"><li style="list-style-type:disc">Run the command:<code> docker --version </code>You should see the Docker version installed on your machine.</li></ul><ul id="182b6dc6-a7a1-806e-8c81-d131a9155ec7" class="bulleted-list"><li style="list-style-type:disc">Launch Docker Desktop and ensure it is running. You may need to log in or create a Docker account.</li></ul><ul id="182b6dc6-a7a1-8068-8ad9-fabb34cfb6b2" class="bulleted-list"><li style="list-style-type:disc">Use the cd command to navigate to the directory containing the docker-compose.yml file. Example:</li></ul><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="182b6dc6-a7a1-8086-a36f-df088af4c6de" class="code"><code class="language-JavaScript">cd ~/webmapping_leaflet/
+</code></pre><ul id="182b6dc6-a7a1-8030-83fb-cef2d6f68ae4" class="bulleted-list"><li style="list-style-type:disc">Start the containers using the command:</li></ul><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="182b6dc6-a7a1-807f-9436-c37278a499de" class="code"><code class="language-JavaScript">docker-compose up -d</code></pre><p id="182b6dc6-a7a1-8095-acee-eb53a0c5efe3" class="">
+</p><p id="182b6dc6-a7a1-80f0-b78b-e64b85c9677a" class=""><strong>Step 2: Install Visual Studio Code (VS Code)</strong></p><ul id="182b6dc6-a7a1-800a-859a-f080545c74ca" class="bulleted-list"><li style="list-style-type:disc">Visit the <a href="https://code.visualstudio.com/">official Visual Studio Code website</a> and download the installer for your operating system.</li></ul><ul id="182b6dc6-a7a1-80a3-ae2d-e6bef22be9e1" class="bulleted-list"><li style="list-style-type:disc">Launch VS Code and Install the following extensions for WebGIS development:<ul id="182b6dc6-a7a1-805e-aead-ed1576de3388" class="bulleted-list"><li style="list-style-type:circle">Emmet</li></ul><ul id="182b6dc6-a7a1-8020-8e3b-f7887a0748fd" class="bulleted-list"><li style="list-style-type:circle">Live Server</li></ul></li></ul><ul id="182b6dc6-a7a1-8038-94c2-c34930b03604" class="bulleted-list"><li style="list-style-type:disc">Click on live server icon to start the view the html files in the browser/col</li></ul><div id="182b6dc6-a7a1-80c1-9c2c-c9943ec50a53" class="column-list"><div id="182b6dc6-a7a1-8055-98bb-d167c5f84fbd" style="width:50%" class="column"><figure id="182b6dc6-a7a1-8040-b701-d61e7ab22015" class="image"><a href="A%20hands-on%20introduction%20to%20Webmapping%20using%20leafle%20182b6dc6a7a1803aba8af958c903d5e8/image.png"><img style="width:576px" src="A%20hands-on%20introduction%20to%20Webmapping%20using%20leafle%20182b6dc6a7a1803aba8af958c903d5e8/image.png"/></a></figure></div><div id="182b6dc6-a7a1-802a-8933-c85a81b84e46" style="width:50%" class="column"><figure id="182b6dc6-a7a1-8088-b37b-da297a59ae75" class="image"><a href="A%20hands-on%20introduction%20to%20Webmapping%20using%20leafle%20182b6dc6a7a1803aba8af958c903d5e8/image%201.png"><img style="width:481px" src="A%20hands-on%20introduction%20to%20Webmapping%20using%20leafle%20182b6dc6a7a1803aba8af958c903d5e8/image%201.png"/></a></figure></div></div><h2 id="182b6dc6-a7a1-80e7-a1f5-edae079526e3" class="">Module 1: Geoportal Basics</h2><h3 id="182b6dc6-a7a1-8091-9ab1-c4ef0dac68f8" class=""><strong>1. Hello World: Creating a Basic Web Map with Leaflet</strong></h3><p id="182b6dc6-a7a1-8046-bdc6-fa38c545b54b" class="">This tutorial will guide you through the steps to create a basic web map using <strong>Leaflet.js</strong>. By the end of this tutorial, you will learn how to initialize a map, add tile layers, place markers, draw shapes, and load GeoJSON data.</p><p id="182b6dc6-a7a1-803d-9bfe-d51b8f9ddadb" class=""><strong>Step 1: Setting Up the HTML File</strong></p><p id="182b6dc6-a7a1-80c7-9c27-cf1941e6cc91" class="">To get started, create an HTML file (e.g., index.html) and include the following structure:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="182b6dc6-a7a1-801c-a79f-e40cb57a56f4" class="code"><code class="language-JavaScript">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;title&gt;Web Mapping Tutorial - Part 1&lt;/title&gt;
+  &lt;!-- Include Leaflet CSS --&gt;
+  &lt;link rel=&quot;stylesheet&quot; href=&quot;https://unpkg.com/leaflet@1.7.1/dist/leaflet.css&quot; /&gt;
+  &lt;style&gt;
+    #map {
+      height: 100vh; /* Set the map height to cover the full viewport */
+    }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Web Mapping Tutorial - Part 1&lt;/h1&gt;
+  &lt;div id=&quot;map&quot;&gt;&lt;/div&gt;
+
+  &lt;!-- Include Leaflet JS --&gt;
+  &lt;script src=&quot;https://unpkg.com/leaflet@1.7.1/dist/leaflet.js&quot;&gt;&lt;/script&gt;
+  &lt;script&gt;
+    // Your JavaScript code will go here
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre><p id="182b6dc6-a7a1-80c5-9695-d085e065a9a6" class="">
+</p><p id="182b6dc6-a7a1-80be-b2e4-e51717aab883" class=""><strong>Step 2: Initializing the Map</strong></p><p id="182b6dc6-a7a1-80b6-a22e-f2337d876a59" class="">Inside the &lt;script&gt; tags, initialize the map with a center point and zoom level using the following code:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="182b6dc6-a7a1-80ce-be0c-c42e643ebd62" class="code"><code class="language-JavaScript">var map = L.map(&#x27;map&#x27;).setView([25.505, 92.05], 8);</code></pre><p id="182b6dc6-a7a1-809c-8fcd-e83fb916c86f" class="">
+</p><p id="182b6dc6-a7a1-80c4-b511-f686de6fec24" class=""><strong>Step 3: Adding a Tile Layer</strong></p><p id="182b6dc6-a7a1-80c4-b714-e7093d1f99ab" class="">Add a tile layer to display the map background using OpenStreetMap tiles:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="182b6dc6-a7a1-80cd-9f27-de79c4275240" class="code"><code class="language-JavaScript">L.tileLayer(&#x27;https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png&#x27;, {
+attribution: &#x27;Map data &amp;copy; &lt;a href=&quot;https://www.openstreetmap.org/&quot;&gt;OpenStreetMap&lt;/a&gt; contributors&#x27;
+}).addTo(map);</code></pre><figure id="182b6dc6-a7a1-808f-9ba4-eda2d9eb1bea" class="image"><a href="A%20hands-on%20introduction%20to%20Webmapping%20using%20leafle%20182b6dc6a7a1803aba8af958c903d5e8/b46dce6c-86af-4511-b02e-9c2684e6d2a3.png"><img style="width:960px" src="A%20hands-on%20introduction%20to%20Webmapping%20using%20leafle%20182b6dc6a7a1803aba8af958c903d5e8/b46dce6c-86af-4511-b02e-9c2684e6d2a3.png"/></a></figure><h3 id="182b6dc6-a7a1-809c-9e44-faf3bc91e819" class=""><strong>2. Adding Layers to a Web Map</strong></h3><p id="182b6dc6-a7a1-80d2-9ed6-fa6aa428e106" class="">This tutorial will guide you through the process of adding <strong>Web Map Service (WMS)</strong> layers to a Leaflet map. You will add:</p><ol type="1" id="182b6dc6-a7a1-8059-af98-f0c669cbd3b0" class="numbered-list" start="1"><li>A WMS layer from your local GeoServer.</li></ol><ol type="1" id="182b6dc6-a7a1-80ad-b125-f981632cb3cb" class="numbered-list" start="2"><li>A WMS layer from the <strong>NeSDR Geoportal</strong>.</li></ol><ol type="1" id="182b6dc6-a7a1-8034-ab9e-f10c8aec134a" class="numbered-list" start="3"><li>GeoJSON file </li></ol><p id="182b6dc6-a7a1-802b-b1e8-c8344986d57c" class="">
+</p><p id="182b6dc6-a7a1-80b7-b4ac-e4f9ffe5ce89" class=""><strong>Step 1: Setting Up the Base Map</strong></p><p id="182b6dc6-a7a1-8038-a880-e53538de9b88" class="">The base map is initialized using <strong>OpenStreetMap</strong> tiles. The following code initializes the map and sets a center point and zoom level:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="182b6dc6-a7a1-80d2-aba0-c91315629481" class="code"><code class="language-JavaScript">var map = L.map(&#x27;map&#x27;).setView([25.505, 92.05], 8);
+L.tileLayer(&#x27;https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png&#x27;, {
+attribution: &#x27;Map data &amp;copy; &lt;a href=&quot;https://www.openstreetmap.org/&quot;&gt;OpenStreetMap&lt;/a&gt; contributors&#x27;
+}).addTo(map);</code></pre><p id="182b6dc6-a7a1-801c-a8a2-c74bf77b4ffe" class=""><strong>Step 2: Adding a Marker</strong></p><p id="182b6dc6-a7a1-8026-8f57-cda7b57d7b73" class="">Place a marker on the map with a popup:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="182b6dc6-a7a1-80b6-803c-d96dcbb4f2af" class="code"><code class="language-JavaScript">var marker = L.marker([25.505, 92.05]).addTo(map);
+marker.bindPopup(&#x27;&lt;b&gt;Welcome to the Web Mapping Tutorial!&lt;/b&gt;&lt;br&gt;This is your starting point.&#x27;).openPopup();</code></pre><p id="182b6dc6-a7a1-80f6-a92f-e628fb43d654" class=""><strong>Step 3: Adding a Local GeoServer WMS Layer</strong></p><p id="182b6dc6-a7a1-80d8-b2e0-e62ba0f48620" class="">To add a layer from your local <strong>GeoServer</strong> instance, use the L.tileLayer.wms method. The following example uses the webgisWS:NL_DISTRICT_BOUNDARY_1575 layer:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="182b6dc6-a7a1-809e-9ec4-d92f7cc7a068" class="code"><code class="language-JavaScript">var wmsLayerUrl = &#x27;http://10.0.40.17:8080/geoserver/webgisWS/wms&#x27;;
+var wmsLayer = L.tileLayer.wms(wmsLayerUrl, {
+layers: &#x27;webgisWS:NL_DISTRICT_BOUNDARY_1575&#x27;, // Specify the layer name
+format: &#x27;image/png&#x27;,
+transparent: true,
+}).addTo(map);</code></pre><p id="182b6dc6-a7a1-80ec-a39e-c5095694a591" class=""><strong>Step 4: Adding Another Layer from Local GeoServer</strong></p><p id="182b6dc6-a7a1-8042-8e25-c06ad7fe5cae" class="">To include an additional WMS layer from your GeoServer, update the wmsLayerUrl and specify the desired layer. For example:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="182b6dc6-a7a1-8041-b1f8-ed7f82ac5420" class="code"><code class="language-JavaScript">// Load GeoJSON from an external file
+    fetch(&#x27;your-geojson-file.geojson&#x27;) // Replace with the URL to your GeoJSON file
+      .then(response =&gt; response.json())
+      .then(data =&gt; {
+        // Add GeoJSON layer to the map
+        L.geoJSON(data, {
+          onEachFeature: function (feature, layer) {
+            if (feature.properties &amp;&amp; feature.properties.name) {
+              layer.bindPopup(&quot;&lt;b&gt;&quot; + feature.properties.name + &quot;&lt;/b&gt;&quot;);
+            }
+          },
+          style: function(feature) {
+            return { color: &#x27;blue&#x27;, weight: 2 };
+          }
+        }).addTo(map);
+      })
+      .catch(error =&gt; console.error(&#x27;Error loading GeoJSON:&#x27;, error));</code></pre><p id="182b6dc6-a7a1-802d-ad5b-cc23c0a81fa5" class=""><strong>Step 5: Adding a Layer from NeSDR Geoportal</strong></p><p id="182b6dc6-a7a1-80a4-be06-c204a21ad836" class="">To include a layer from the <strong>NeSDR Geoportal</strong>, replace the WMS URL and layer name with the corresponding details. For example:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="182b6dc6-a7a1-80e1-ade0-c9f97fa85858" class="code"><code class="language-JavaScript">var nesdrWmsLayerUrl = &#x27;https://nesdr.nesac.gov.in/geoserver/ows&#x27;;
+var nesdrWmsLayer = L.tileLayer.wms(nesdrWmsLayerUrl, {
+layers: &#x27;nesdr:LAYER_NAME&#x27;, // Replace with the NeSDR layer name
+format: &#x27;image/png&#x27;,
+transparent: true,
+}).addTo(map);</code></pre><figure id="182b6dc6-a7a1-807a-9783-e78f0c6b40f0" class="image"><a href="A%20hands-on%20introduction%20to%20Webmapping%20using%20leafle%20182b6dc6a7a1803aba8af958c903d5e8/b6f1d529-96e2-44a7-88cf-924a19ac1da6.png"><img style="width:554.7128927410618px" src="A%20hands-on%20introduction%20to%20Webmapping%20using%20leafle%20182b6dc6a7a1803aba8af958c903d5e8/b6f1d529-96e2-44a7-88cf-924a19ac1da6.png"/></a></figure><p id="182b6dc6-a7a1-80eb-acf1-c07b317baee5" class=""><strong>Exercise</strong></p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="182b6dc6-a7a1-80ad-8129-ebd1e77886ee" class="code"><code class="language-JavaScript">Add WMS Layers from bhuvan portal</code></pre><h2 id="182b6dc6-a7a1-8037-8840-e28076f74ee9" class="">Module 2: Leaflet Control and Plugins</h2><h3 id="182b6dc6-a7a1-8089-b6c8-c2646d006a7c" class=""><strong>3. Adding Layer Control in Leaflet</strong></h3><p id="182b6dc6-a7a1-805f-ba86-fd94bd10ba12" class="">In this tutorial, you will learn how to use <strong>Leaflet.js</strong> to manage and toggle different layers on your web map using the <strong>layer control feature</strong>. Layer control is an interactive tool that allows users to switch between layers and visualize different types of data on the map.</p><p id="182b6dc6-a7a1-8093-936b-dc40adb0d3bf" class=""><strong>Key Concepts in Layer Control</strong></p><ol type="1" id="182b6dc6-a7a1-8080-aa90-d7e01cdce7c8" class="numbered-list" start="1"><li><strong>Base Layers</strong>: These are the background layers of your map (e.g., OpenStreetMap or satellite imagery). Only one base layer can be active at a time.</li></ol><ol type="1" id="182b6dc6-a7a1-8087-b7b2-e6987e98dee1" class="numbered-list" start="2"><li><strong>Overlay Layers</strong>: These are additional layers like markers, WMS layers, or GeoJSON data that can be toggled on and off independently.</li></ol><p id="182b6dc6-a7a1-80fb-9695-dd5c961efee7" class=""><strong>Step-by-Step Explanation of the Code</strong></p><p id="182b6dc6-a7a1-8043-9146-e06cf4952e79" class=""><strong>1. Initialising the Map</strong></p><p id="182b6dc6-a7a1-8045-94ae-cb98a0aca7a9" class="">The map is initialised with the base layer using OpenStreetMap tiles:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="182b6dc6-a7a1-80cd-9c0c-e6e5d71554e8" class="code"><code class="language-JavaScript">var map = L.map(&#x27;map&#x27;).setView([25.505, 92.05], 8);
+var openStreetMapLayer = L.tileLayer(&#x27;https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png&#x27;, {
+attribution: &#x27;Map data &amp;copy; &lt;a href=&quot;https://www.openstreetmap.org/&quot;&gt;OpenStreetMap&lt;/a&gt; contributors&#x27;
+});
+openStreetMapLayer.addTo(map);</code></pre><p id="182b6dc6-a7a1-805d-9c0e-c087b51ef4b6" class=""><strong>3. Adding a Marker and WMS layer</strong></p><p id="182b6dc6-a7a1-806c-a381-c43028999b17" class="">A marker is added to the map to represent a specific location:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="182b6dc6-a7a1-80d4-87f8-ffed2e43f57c" class="code"><code class="language-JavaScript">var marker = L.marker([25.505, 92.05]);
+marker.bindPopup(&quot;&lt;b&gt;Hello!&lt;/b&gt;&lt;br&gt;This is a custom marker.&quot;).openPopup();
+marker.addTo(map);
+
+var wmsLayerUrl = &#x27;https://www.nesdr.gov.in/igistile/NER_Land_Use_50K_QC_passWS/wms&#x27;;
+var wmsLayer = L.tileLayer.wms(wmsLayerUrl, {
+layers: &#x27;NER_LULC_50K_1st_CYCLE&#x27;,
+format: &#x27;image/png&#x27;,
+transparent: true,
+attribution: &#x27;WMS data &amp;copy; &lt;a href=&quot;URL_TO_YOUR_DATA_SOURCE&quot;&gt;Data Source&lt;/a&gt;&#x27;
+});</code></pre><p id="182b6dc6-a7a1-80fc-a165-df036c9d4059" class=""><strong>4. Grouping Overlay Layers</strong></p><p id="182b6dc6-a7a1-800c-9231-c4523265a9d3" class="">The marker and WMS layer are grouped as overlay layers:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="182b6dc6-a7a1-808f-8405-ce2ee91a05d3" class="code"><code class="language-JavaScript">var overlayLayers = {
+&quot;Marker&quot;: marker,
+&quot;WMS Layer&quot;: wmsLayer
+};</code></pre><p id="182b6dc6-a7a1-80d5-a36c-c841d9a81dc4" class=""><strong>5. Adding the Layer Control</strong></p><p id="182b6dc6-a7a1-809e-9e22-c759653a5fb1" class="">The L.control.layers method is used to add the layer control to the map. This allows toggling the overlay layers:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="182b6dc6-a7a1-80a5-aa4f-c4caa39c07bd" class="code"><code class="language-JavaScript">L.control.layers(null, overlayLayers).addTo(map);</code></pre><p id="182b6dc6-a7a1-80cc-bb25-f7909246a949" class="">•	null: Indicates no base layer switching (only one base layer is present).</p><p id="182b6dc6-a7a1-8071-aa51-d9ebf0c89950" class="">•	overlayLayers: Specifies the layers that can be toggled.</p><p id="182b6dc6-a7a1-8039-9dfc-f7b943af7d59" class=""><strong>6.Exercise</strong></p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="182b6dc6-a7a1-808e-9ad5-eb25007d57e0" class="code"><code class="language-JavaScript">1.	Add more base layers (e.g., satellite imagery) to explore base layer switching.
+2.	Experiment with adding multiple WMS layers or GeoJSON files as overlay layers.
+3.	Customize the layer control style or position using Leaflet options.</code></pre><h3 id="182b6dc6-a7a1-80b2-b819-e87d8eaef2c9" class=""><strong>4. Using Plugins in Leaflet - Adding Measurement Tools</strong></h3><p id="182b6dc6-a7a1-80c1-8735-f8d583a7e16e" class="">Leaflet’s plugin ecosystem provides a powerful way to extend the core functionality of the library. In this tutorial, you’ll learn how to integrate the <strong>Leaflet.Measure plugin</strong> to add measurement tools for length and area to your web map. Additionally, you’ll customize the measurement units to fit your needs.</p><p id="182b6dc6-a7a1-8029-99ca-f4ae198a84ee" class=""><strong>What are Plugins?</strong></p><p id="182b6dc6-a7a1-80ee-8d31-f8c98313b4a2" class="">Plugins in Leaflet are third-party extensions that add additional features or tools, such as measurement tools, clustering, or heatmaps, which are not included in the core Leaflet library. Plugins are easy to integrate and provide enhanced functionality for specialized mapping tasks.</p><p id="182b6dc6-a7a1-8007-964c-cb7bf873dd7e" class=""><strong>Step-by-Step Guide to Using the Measurement Plugin</strong></p><p id="182b6dc6-a7a1-80cd-8985-c863d34dc209" class=""><strong>1. Include the Plugin Files</strong></p><p id="182b6dc6-a7a1-8065-b11a-d108e07eca19" class="">To use the <strong>Leaflet.Measure plugin</strong>, you need to include its CSS and JavaScript files in your HTML file. This is done by adding the following lines in the &lt;head&gt; section:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="182b6dc6-a7a1-80f2-b00f-cbf307d0fe13" class="code"><code class="language-JavaScript">&lt;link rel=&quot;stylesheet&quot; href=&quot;https://unpkg.com/leaflet-measure/dist/leaflet-measure.css&quot; /&gt;
+&lt;script src=&quot;https://unpkg.com/leaflet-measure/dist/leaflet-measure.js&quot;&gt;&lt;/script&gt;</code></pre><p id="182b6dc6-a7a1-8080-857f-faed6e52593b" class=""><strong>2. Initialise the Map</strong></p><p id="182b6dc6-a7a1-80b4-a2f7-f82f61918a48" class="">Set up a basic Leaflet map with a base layer:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="182b6dc6-a7a1-8026-8893-ee5a81838d22" class="code"><code class="language-JavaScript">var map = L.map(&#x27;map&#x27;).setView([25.505, 92.05], 8);
+var openStreetMapLayer = L.tileLayer(&#x27;https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png&#x27;, {
+attribution: &#x27;Map data &amp;copy; &lt;a href=&quot;https://www.openstreetmap.org/&quot;&gt;OpenStreetMap&lt;/a&gt; contributors&#x27;
+});
+openStreetMapLayer.addTo(map);</code></pre><p id="182b6dc6-a7a1-80f5-af13-ff13ec27b12b" class=""><strong>3. Add the Measurement Tool</strong></p><p id="182b6dc6-a7a1-8043-a8a1-da0947a7371c" class="">Add the measurement tool to the map using the L.control.measure method. Customize the measurement units for length and area as follows:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="182b6dc6-a7a1-80ea-b6c6-fc30a0dea207" class="code"><code class="language-JavaScript">L.control.measure({
+primaryLengthUnit: &#x27;meters&#x27;, // Main unit for length measurements
+secondaryLengthUnit: &#x27;kilometers&#x27;, // Secondary unit for length
+primaryAreaUnit: &#x27;sqmeters&#x27;, // Main unit for area measurements
+secondaryAreaUnit: &#x27;hectares&#x27; // Secondary unit for area
+}).addTo(map);</code></pre><p id="182b6dc6-a7a1-804a-9b6f-c26d34b182ce" class=""><strong>Customizing Measurement Units</strong></p><p id="182b6dc6-a7a1-801f-996c-e17972fd5878" class="">The <strong>Leaflet.Measure plugin</strong> supports the following units for customization:</p><p id="182b6dc6-a7a1-80d1-b875-e8a18ca39773" class="">•	<strong>Length Units</strong>: meters, kilometers, feet, miles, nauticalmiles, yards.</p><p id="182b6dc6-a7a1-8086-9fe6-d293e9400500" class="">•	<strong>Area Units</strong>: sqmeters, acres, hectares, sqmiles.</p><p id="182b6dc6-a7a1-80c1-9892-cb10807b6806" class="">Update the primaryLengthUnit, secondaryLengthUnit, primaryAreaUnit, and secondaryAreaUnit parameters as needed. For example:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="182b6dc6-a7a1-80e6-a9a9-c949551bcb17" class="code"><code class="language-JavaScript">L.control.measure({
+primaryLengthUnit: &#x27;feet&#x27;,
+secondaryLengthUnit: &#x27;miles&#x27;,
+primaryAreaUnit: &#x27;acres&#x27;,
+secondaryAreaUnit: &#x27;sqmiles&#x27;
+}).addTo(map);</code></pre><p id="182b6dc6-a7a1-80c7-8afd-e0509c05ba63" class=""><strong>Exercise</strong></p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="182b6dc6-a7a1-8089-9762-eea7cb3c5dd4" class="code"><code class="language-JavaScript">•	Explore more plugins like Leaflet.Draw for creating shapes or Leaflet.MarkerCluster for clustering markers.</code></pre><h2 id="182b6dc6-a7a1-8043-9d3b-d3d6e023271e" class="">Module 3: API Interaction</h2><h3 id="182b6dc6-a7a1-80de-b47c-eaac1992d061" class=""><strong>5.Implementing a Search Functionality with OpenStreetMap API</strong></h3><p id="182b6dc6-a7a1-80c4-b585-c4e805ce8b1f" class="">In this tutorial, you’ll learn how to add a search feature to your Leaflet web map using the <strong>OpenStreetMap (OSM) Nominatim API</strong>. This feature allows users to search for locations by name, retrieve their geographical coordinates, and visualize them on the map with a marker and popup.</p><p id="182b6dc6-a7a1-809f-aaa0-e1fae186c37b" class=""><strong>What is the OpenStreetMap Nominatim API?</strong></p><p id="182b6dc6-a7a1-805f-b369-eaa2a323ddd2" class="">The <strong>Nominatim API</strong> is a free geocoding service provided by OpenStreetMap. It enables you to:</p><p id="182b6dc6-a7a1-8079-b619-f8f3b92fc5ee" class="">•	<strong>Forward Geocoding</strong>: Convert location names or addresses into latitude and longitude.</p><p id="182b6dc6-a7a1-80d4-9fc0-dfd8b8f8b3d0" class="">•	<strong>Reverse Geocoding</strong>: Convert latitude and longitude into a human-readable address.</p><p id="182b6dc6-a7a1-80ff-aee8-cc5e43fcf4eb" class="">In this example, we use forward geocoding to find a location based on a user’s query.</p><p id="182b6dc6-a7a1-80d3-9229-d2e99feae8db" class=""><strong>How the Search Feature Works</strong></p><p id="182b6dc6-a7a1-801a-9b27-dd68284b88c3" class="">1.	The user enters a location name in the search box.</p><p id="182b6dc6-a7a1-8065-a4c8-e73da35c84fc" class="">2.	The <strong>Nominatim API</strong> processes the query and returns a list of possible matches with their coordinates.</p><p id="182b6dc6-a7a1-808f-b7c4-e633fe56fbed" class="">3.	The map zooms to the selected location and displays a marker with a popup showing the name.</p><p id="182b6dc6-a7a1-80cf-ac7f-c9a5392f2230" class=""><strong>Step-by-Step Guide</strong></p><p id="182b6dc6-a7a1-803e-a425-dd2dbdfe9081" class=""><strong>1. Adding a Search Box</strong></p><p id="182b6dc6-a7a1-8039-8f5a-e77ebe7a779a" class="">The search box is implemented using a simple &lt;input&gt; field and a &lt;button&gt;:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="182b6dc6-a7a1-80ad-86db-cf6e526b7ef0" class="code"><code class="language-JavaScript">&lt;div id=&quot;search-container&quot;&gt;
+&lt;input type=&quot;text&quot; id=&quot;search&quot; placeholder=&quot;Search for a location...&quot; /&gt;
+&lt;button id=&quot;search-btn&quot;&gt;Search&lt;/button&gt;`
+&lt;/div&gt;</code></pre><p id="182b6dc6-a7a1-800b-9a35-d4775b72cda5" class="">•	<strong>Styling</strong>: The #search-container is styled with CSS to position it above the map:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="182b6dc6-a7a1-806a-a20a-ede585a72ae1" class="code"><code class="language-JavaScript">#search-container {
+top: 10px;
+left: 50px;
+z-index: 1000;
+background: white;
+padding: 10px;
+border-radius: 5px;
+}
+
+#search {
+width: 300px;
+padding: 5px;
+font-size: 14px;
+}
+
+#search-btn {
+padding: 5px 10px;
+font-size: 14px;
+cursor: pointer;
+}</code></pre><p id="182b6dc6-a7a1-80c3-86a7-cf8636e4b634" class=""><strong>2. Fetching Results from the Nominatim API</strong></p><p id="182b6dc6-a7a1-80d9-8d39-e402f5eee3f6" class="">The <strong>Nominatim API</strong> is queried using JavaScript fetch. The query URL is formatted as:</p><p id="182b6dc6-a7a1-8052-8666-d11e6cd6d5fb" class="">
+</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="182b6dc6-a7a1-8098-8fee-fcca3495a5e2" class="code"><code class="language-JavaScript">https://nominatim.openstreetmap.org/search?format=json&amp;q=LOCATION_QUERY</code></pre><p id="182b6dc6-a7a1-8099-8af1-e9bd53bfb779" class="">Here’s the search functionality in the script:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="182b6dc6-a7a1-801b-9dd7-ec4e02efc0a6" class="code"><code class="language-JavaScript">document.getElementById(&#x27;search-btn&#x27;).addEventListener(&#x27;click&#x27;, function () {
+var query = document.getElementById(&#x27;search&#x27;).value;
+if (!query) {
+alert(&#x27;Please enter a location to search.&#x27;);
+return;
+}
+
+var url = `https://nominatim.openstreetmap.org/search?format=json&amp;q=${encodeURIComponent(query)}`;
+fetch(url)
+.then(response =&gt; response.json())
+.then(data =&gt; {
+if (data.length &gt; 0) {
+var result = data[0];
+var lat = parseFloat(result.lat);
+var lon = parseFloat(result.lon);
+
+map.setView([lat, lon], 12);
+var searchMarker = L.marker([lat, lon]).addTo(map);
+searchMarker.bindPopup(`&lt;b&gt;${result.display_name}&lt;/b&gt;`).openPopup();
+} else {
+alert(&#x27;No results found. Please try another location.&#x27;);
+}
+})
+
+.catch(error =&gt; {
+console.error(&#x27;Error fetching data from Nominatim API:&#x27;, error);
+alert(&#x27;An error occurred while searching. Please try again later.&#x27;);
+});
+});</code></pre><figure id="182b6dc6-a7a1-80da-8abb-eedc190bc536" class="image"><a href="A%20hands-on%20introduction%20to%20Webmapping%20using%20leafle%20182b6dc6a7a1803aba8af958c903d5e8/1f5d1688-76f8-4972-950f-3a166ba7074b.png"><img style="width:556.5217391304348px" src="A%20hands-on%20introduction%20to%20Webmapping%20using%20leafle%20182b6dc6a7a1803aba8af958c903d5e8/1f5d1688-76f8-4972-950f-3a166ba7074b.png"/></a></figure><p id="182b6dc6-a7a1-809b-96c8-d40ece267b1a" class=""><strong>Exercise</strong></p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="182b6dc6-a7a1-8007-9df8-ca1b556a425c" class="code"><code class="language-JavaScript">Search Result Filtering: Add filters to handle ambiguous results (e.g., by country or region).</code></pre><p id="182b6dc6-a7a1-8065-a6bf-f2cd3992c3e6" class="">
+</p><h3 id="182b6dc6-a7a1-801e-9d55-c7468e2a9c1c" class=""><strong>6. Map with Buffer Search</strong></h3><p id="182b6dc6-a7a1-8020-8a47-c41d56509e02" class="">This tutorial demonstrates how to integrate a form-based interface with a Leaflet map. The interface allows users to add markers, define a search radius, and fetch nearby features using the <strong>Overpass API</strong>. The form provides an easy-to-use control for input and interaction with the map.</p><p id="182b6dc6-a7a1-8083-a022-f3a298d86f01" class=""><strong>Key Features</strong></p><p id="182b6dc6-a7a1-8065-ab1b-ed9355b3b5b2" class="">1.	<strong>Interactive Form Controls</strong>:</p><p id="182b6dc6-a7a1-80ad-b3be-e4e7c812778a" class="">•	Button to enable marker placement.</p><p id="182b6dc6-a7a1-80c0-8916-ed0365a76358" class="">•	Input fields for displaying coordinates and specifying a buffer radius.</p><p id="182b6dc6-a7a1-80ea-87c9-df7d8d15fb6e" class="">•	Submit button to execute the buffer search.</p><p id="182b6dc6-a7a1-80f5-8cc8-de368a7c19a1" class="">2.	<strong>Marker Placement</strong>: Users can click on the map to place a marker.</p><p id="182b6dc6-a7a1-80cc-9496-df1271ea5b6b" class="">3.	<strong>Buffer Visualization</strong>: A circle is drawn around the marker to represent the search area.</p><p id="182b6dc6-a7a1-8099-a928-e14970d02407" class="">4.	<strong>Data Retrieval</strong>: Points of interest (POIs) within the buffer are fetched and displayed.</p><p id="182b6dc6-a7a1-8022-929d-d695a59c3c6d" class=""><strong>Step-by-Step Guide</strong></p><p id="182b6dc6-a7a1-8069-9944-e5952aa36b90" class=""><strong>1. Setting Up the Map</strong></p><p id="182b6dc6-a7a1-80b8-a285-da7ce5b4c8b1" class="">The map is initialized with a base layer using OpenStreetMap tiles:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="182b6dc6-a7a1-80cb-a48f-d8d5e2b52bbe" class="code"><code class="language-JavaScript">var map = L.map(&#x27;map&#x27;).setView([25.505, 92.05], 8);
+
+L.tileLayer(&#x27;https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png&#x27;, {
+  attribution: &#x27;Map data &amp;copy; &lt;a href=&quot;https://www.openstreetmap.org/&quot;&gt;OpenStreetMap&lt;/a&gt; contributors&#x27;
+}).addTo(map);</code></pre><p id="182b6dc6-a7a1-80fa-b6a4-d86251a92ff8" class=""><strong>2. Adding the Form Controls</strong></p><p id="182b6dc6-a7a1-80e0-80d3-d268f613a49a" class="">The form interface includes:</p><p id="182b6dc6-a7a1-80e9-9daa-ddcccaff5afd" class="">•	A button to activate marker placement.</p><p id="182b6dc6-a7a1-808c-8c69-e4fa192779d9" class="">•	A read-only text field to display the selected coordinates.</p><p id="182b6dc6-a7a1-808b-924c-f7edcbdc262f" class="">•	A numeric input field for defining the buffer radius.</p><p id="182b6dc6-a7a1-8023-b41e-f3bb4201e86d" class="">•	A submit button to execute the search.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="182b6dc6-a7a1-8029-b621-c001bf18eea1" class="code"><code class="language-JavaScript">&lt;div id=&quot;controls&quot;&gt;
+&lt;button id=&quot;add-marker-btn&quot;&gt;Add Marker&lt;/button&gt;
+&lt;label for=&quot;coordinates&quot;&gt;Coordinates:&lt;/label&gt;
+&lt;input type=&quot;text&quot; id=&quot;coordinates&quot; placeholder=&quot;Lat, Lng&quot; readonly /&gt;
+&lt;label for=&quot;distance&quot;&gt;Distance (meters):&lt;/label&gt;
+&lt;input type=&quot;number&quot; id=&quot;distance&quot; placeholder=&quot;1000&quot; /&gt;
+&lt;button id=&quot;submit-btn&quot;&gt;Submit&lt;/button&gt;
+&lt;/div&gt;</code></pre><p id="182b6dc6-a7a1-801a-8ed7-f39f8d8bf532" class="">
+</p><p id="182b6dc6-a7a1-80a2-90a4-f2a5624ea859" class="">•	<strong>Styling</strong>: The form is styled for a clean and accessible design:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="182b6dc6-a7a1-800c-bd1c-d568c9b43862" class="code"><code class="language-CSS">#controls {
+margin: 10px;
+}
+
+#controls input {
+margin: 5px;
+}</code></pre><p id="182b6dc6-a7a1-8091-b7fb-d123fca4d5b3" class=""><strong>3. Integrating the Form with the Map</strong></p><p id="182b6dc6-a7a1-80f6-958e-ecb11eeb999c" class="">•	<strong>Activate Marker Placement</strong>: Clicking the “Add Marker” button enables a mode to place a marker on the map.</p><p id="182b6dc6-a7a1-800d-87c7-e89189c89dfd" class="">•	<strong>Display Coordinates</strong>: The map click event updates the coordinates in the text input field.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="182b6dc6-a7a1-80d8-b5b6-c82158de4a83" class="code"><code class="language-JavaScript">document.getElementById(&#x27;add-marker-btn&#x27;).addEventListener(&#x27;click&#x27;, function () {
+addMarkerMode = true;
+alert(&#x27;Click on the map to add a marker.&#x27;);
+});
+
+map.on(&#x27;click&#x27;, function (e) {
+if (addMarkerMode) {
+var lat = e.latlng.lat.toFixed(6);
+var lng = e.latlng.lng.toFixed(6);
+// Add or update the marker
+
+if (marker) {
+map.removeLayer(marker);
+}
+
+marker = L.marker([lat, lng]).addTo(map);
+
+// Update the coordinates in the form
+
+document.getElementById(&#x27;coordinates&#x27;).value = `${lat}, ${lng}`;
+addMarkerMode = false;
+}
+});</code></pre><p id="182b6dc6-a7a1-80aa-b471-dd07ebf4c682" class=""><strong>4. Submitting the Buffer Query</strong></p><p id="182b6dc6-a7a1-803e-9ecf-dbe73b00a5cf" class="">The “Submit” button initiates the buffer search and data retrieval:</p><p id="182b6dc6-a7a1-802d-b91e-e15282012d0b" class="">•	Retrieves the coordinates and radius from the form.</p><p id="182b6dc6-a7a1-80ef-9540-cc52bd1ac258" class="">•	Draws a circle (buffer) around the marker.</p><p id="182b6dc6-a7a1-804a-8748-df525c1f1310" class="">•	Fetches nearby features using the Overpass API.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="182b6dc6-a7a1-804b-b0a8-c9172acea737" class="code"><code class="language-JavaScript">document.getElementById(&#x27;submit-btn&#x27;).addEventListener(&#x27;click&#x27;, function () {
+var coordinates = document.getElementById(&#x27;coordinates&#x27;).value;
+var distance = document.getElementById(&#x27;distance&#x27;).value;
+if (!coordinates || !distance) {
+alert(&#x27;Please add a marker and specify a distance.&#x27;);
+return;
+}
+
+var [lat, lng] = coordinates.split(&#x27;,&#x27;).map(Number);
+
+// Draw buffer circle
+
+if (bufferCircle) {
+map.removeLayer(bufferCircle);
+}
+
+bufferCircle = L.circle([lat, lng], {
+color: &#x27;red&#x27;,
+fillOpacity: 0,
+radius: distance
+}).addTo(map);
+
+// Fetch nearby features using Overpass API
+
+var query = `
+[out:json];
+node(around:${distance}, ${lat}, ${lng});
+out body;
+`;
+
+fetch(&#x27;https://overpass-api.de/api/interpreter?data=&#x27; + encodeURIComponent(query))
+.then(response =&gt; response.json())
+.then(data =&gt; {
+
+data.elements.forEach(element =&gt; {
+if (element.lat &amp;&amp; element.lon) {
+L.circle([element.lat, element.lon], {
+color: &#x27;blue&#x27;,
+fillColor: &#x27;#30c&#x27;,
+fillOpacity: 0.5,
+radius: 5
+})
+
+.bindPopup(`Type: ${element.tags?.amenity || &#x27;Unknown&#x27;}&lt;br&gt;Node ID: ${element.id}`)
+.addTo(map);
+}
+});
+})
+
+.catch(error =&gt; {
+console.error(&#x27;Error fetching data from Overpass API:&#x27;, error);
+});
+});</code></pre><p id="182b6dc6-a7a1-8092-b0e9-f061ffe38a8c" class="">
+</p><p id="182b6dc6-a7a1-80d2-8b69-ec1e39ccf1be" class=""><strong>Exercise</strong></p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="182b6dc6-a7a1-8076-9f57-c363972704a8" class="code"><code class="language-JavaScript">Explore the overpass API and modify the code to return a specific type of Point of interest</code></pre></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>
